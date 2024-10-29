@@ -20,7 +20,6 @@ export default function SecurityReviewApp() {
     { name: "Slack #ask-security channel questions and responses", link: "#" },
     { name: "Security policy docs", link: "#" },
     { name: "Design review meeting notes and transcripts", link: "#" },
-    { name: "Release approval checklists and associated docs", link: "#" },
     { name: "Security ticket threads and associated docs", link: "#" }
   ])
   const [newIntegration, setNewIntegration] = useState('')
@@ -52,7 +51,7 @@ export default function SecurityReviewApp() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Security Help Desk Agent</h1>
         <Button onClick={() => setShowModifications(!showModifications)}>
-          {showModifications ? 'Back to Review' : 'View Suggested Modifications'}
+          {showModifications ? 'Back to Help Desk Questions' : 'View Suggested Updates'}
         </Button>
       </div>
       

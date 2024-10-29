@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ExternalLink, Check, X, MessageSquare, Mail, Ticket } from 'lucide-react'
+import { ExternalLink, Check, X, MessageSquare, Mail, Ticket, Phone, Fish } from 'lucide-react'
 
 interface Question {
   id: number;
@@ -184,6 +184,54 @@ const outstandingQuestions: OutstandingQuestion[] = [
     ],
     source: "Zendesk ticket",
     sourceLink: "https://zendesk.company.com/tickets/SEC-2023-789"
+  },
+  {
+    id: 7,
+    question: "Reporting suspicious emails with DocuSign links",
+    user: "Security Operations",
+    stage: "Active Incident",
+    dueDate: "2023-07-13",
+    policyOwner: {
+      team: "Security Operations Team",
+      teamEmail: "secops@company.com",
+      contact: "Alex Rivera",
+      email: "alex.rivera@company.com"
+    },
+    suggestedResponse: "1) Block sender domains immediately via email gateway, 2) Send company-wide alert about DocuSign phishing campaign, 3) Check email logs for click-throughs, 4) Reset passwords for any affected accounts, 5) Update phishing detection rules to catch similar patterns.",
+    supportingDocs: [
+      { name: "Phishing Response Playbook", link: "https://docs.company.com/security/phishing-response" },
+      { name: "Email Security Controls", link: "https://docs.company.com/security/email-controls" }
+    ],
+    otherDocs: [
+      { name: "Security Awareness Training", link: "https://docs.company.com/training/security" },
+      { name: "DocuSign Security Guidelines", link: "https://docs.company.com/security/docusign" }
+    ],
+    source: "Phishing report button",
+    sourceLink: "https://phishing.company.com/reports/2023-15"
+  },
+  {
+    id: 8,
+    question: "Data center fire alarm triggered - Emergency response needed",
+    user: "NOC Team",
+    stage: "Critical Incident",
+    dueDate: "2023-07-13",
+    policyOwner: {
+      team: "Infrastructure & Facilities",
+      teamEmail: "facilities@company.com",
+      contact: "Sarah Johnson",
+      email: "sarah.johnson@company.com"
+    },
+    suggestedResponse: "Immediate actions required: 1) Verify fire suppression system activation, 2) Initiate emergency shutdown procedures for affected racks, 3) Notify on-call facilities team, 4) Activate disaster recovery procedures if needed, 5) Prepare for failover to backup data center if situation escalates.",
+    supportingDocs: [
+      { name: "Data Center Emergency Procedures", link: "https://docs.company.com/facilities/dc-emergency" },
+      { name: "Business Continuity Plan", link: "https://docs.company.com/security/bcp" }
+    ],
+    otherDocs: [
+      { name: "Data Center Layout", link: "https://docs.company.com/facilities/dc-layout" },
+      { name: "Emergency Contact List", link: "https://docs.company.com/facilities/emergency-contacts" }
+    ],
+    source: "Emergency hotline",
+    sourceLink: "https://incidents.company.com/DC-2023-89"
   }
 ]
 
@@ -233,7 +281,7 @@ const resolvedQuestions: ResolvedQuestion[] = [
     response: "Yes, you can access work email on personal iOS devices if they meet our BYOD requirements: 1) Latest iOS version, 2) Device passcode enabled, 3) Installation of our MDM profile, 4) Acceptance of remote wipe capability. Install our Mobile Access Portal app to get started.",
     decision: "Approved with standard BYOD controls",
     documentationLink: "/security/byod/mobile-access",
-    source: "Email to security-helpdesk",
+    source: "Email to security-helpdesk alias",
     sourceLink: "https://mail.company.com/threads/mobile-access-request",
     policyOwner: {
       team: "Identity & Access Management Team",
@@ -358,10 +406,16 @@ export function QuestionsTable() {
     switch (source) {
       case 'Slack #ask-security channel':
         return <MessageSquare className="h-4 w-4 mr-2" />
-      case 'Email to security-review alias':
-        return <Mail className="h-4 w-4 mr-2" />
+      case 'Email to security-helpdesk alias':
+        return <Mail className="h-4 w-4 mr-2" />  
       case 'Security review ticket':
         return <Ticket className="h-4 w-4 mr-2" />
+      case 'Zendesk ticket':
+        return <Ticket className="h-4 w-4 mr-2" />
+      case 'Phishing report button':
+        return <Fish className="h-4 w-4 mr-2" />
+      case 'Emergency hotline':
+        return <Phone className="h-4 w-4 mr-2" />
       default:
         return null
     }
@@ -370,7 +424,7 @@ export function QuestionsTable() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Security Review Questions</h2>
+        <h2 className="text-2xl font-semibold">Security Help Desk Questions</h2>
         <div className="flex rounded-md shadow-sm" role="group">
           <Button
             variant={!showResolved ? "default" : "outline"}
@@ -393,8 +447,9 @@ export function QuestionsTable() {
           <TableRow>
             <TableHead>Question</TableHead>
             <TableHead>User</TableHead>
-            <TableHead>Stage</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>{showResolved ? 'Resolved Date' : 'Due Date'}</TableHead>
+            <TableHead>Source</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -405,6 +460,10 @@ export function QuestionsTable() {
               <TableCell>{question.stage}</TableCell>
               <TableCell>
                 {'resolvedDate' in question ? question.resolvedDate : question.dueDate}
+              </TableCell>
+              <TableCell className="flex items-center">
+                {getSourceIcon(question.source)}
+                {question.source}
               </TableCell>
             </TableRow>
           ))}

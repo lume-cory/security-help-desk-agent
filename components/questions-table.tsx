@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ExternalLink, Check, X, MessageSquare, Mail, Ticket, Phone, Fish } from 'lucide-react'
+import { ExternalLink, Check, X, MessageSquare, Mail, Ticket, Phone, Fish, ArrowUpDown } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Question {
   id: number;
@@ -15,6 +16,7 @@ interface Question {
   stage: string;
   source: string;
   sourceLink: string;
+  triage?: 'urgent' | 'high' | 'medium' | 'low';
 }
 
 interface OutstandingQuestion extends Question {
@@ -46,7 +48,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "What are the security implications of using a third-party authentication service?",
     user: "John Doe",
     stage: "Architecture Review",
-    dueDate: "2023-07-15",
+    dueDate: new Date(Date.now() + (2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "high",
     policyOwner: {
       team: "Identity & Access Management Team",
       teamEmail: "iam@company.com",
@@ -70,7 +73,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "I want to host a website for our team project. Can I register a .org domain and set it up myself?",
     user: "Sarah Chen",
     stage: "Planning",
-    dueDate: "2023-07-20",
+    dueDate: new Date(Date.now() + (1 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "medium",
     policyOwner: {
       team: "Infrastructure Security Team",
       teamEmail: "infrasec@company.com",
@@ -94,7 +98,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "I'm traveling to Mexico next week for the conference. Can I bring my work phone?",
     user: "Michael Rodriguez",
     stage: "Pre-travel",
-    dueDate: "2023-07-14",
+    dueDate: new Date().toISOString().split('T')[0],
+    triage: "low",
     policyOwner: {
       team: "Physical Security & Travel Team",
       teamEmail: "travelsec@company.com",
@@ -118,7 +123,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "Our team needs to share some sensitive financial documents with external auditors.",
     user: "Alex Kumar",
     stage: "Planning",
-    dueDate: "2023-07-18",
+    dueDate: new Date(Date.now() - (1 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "high",
     policyOwner: {
       team: "Data Protection Team",
       teamEmail: "dataprotection@company.com",
@@ -142,7 +148,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "We're hiring contractors next week and need to get them laptop access.",
     user: "Patricia Wong",
     stage: "Onboarding",
-    dueDate: "2023-07-13",
+    dueDate: new Date(Date.now() - (2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "medium",
     policyOwner: {
       team: "Identity & Access Management Team",
       teamEmail: "iam@company.com",
@@ -166,7 +173,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "Can we use personal LastPass accounts to share team credentials?",
     user: "Tom Mitchell",
     stage: "Operations",
-    dueDate: "2023-07-16",
+    dueDate: new Date(Date.now() + (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "urgent",
     policyOwner: {
       team: "Identity & Access Management Team",
       teamEmail: "iam@company.com",
@@ -190,7 +198,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "Reporting suspicious emails with DocuSign links",
     user: "Security Operations",
     stage: "Active Incident",
-    dueDate: "2023-07-13",
+    dueDate: new Date(Date.now() - (3 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "urgent",
     policyOwner: {
       team: "Security Operations Team",
       teamEmail: "secops@company.com",
@@ -214,7 +223,8 @@ const outstandingQuestions: OutstandingQuestion[] = [
     question: "Data center fire alarm triggered - Emergency response needed",
     user: "NOC Team",
     stage: "Critical Incident",
-    dueDate: "2023-07-13",
+    dueDate: new Date(Date.now() + (4 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    triage: "urgent",
     policyOwner: {
       team: "Infrastructure & Facilities",
       teamEmail: "facilities@company.com",
@@ -241,7 +251,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "What is our policy on password complexity?",
     user: "Alice Johnson",
     stage: "Implementation",
-    resolvedDate: "2023-06-30",
+    resolvedDate: "2024-01-14",
+    triage: "medium",
     response: "Our password policy requires a minimum of 12 characters, including uppercase and lowercase letters, numbers, and special characters. We also implement a password strength meter to encourage even stronger passwords.",
     decision: "Implemented in User Authentication Module",
     documentationLink: "/security/policies/password-policy",
@@ -259,7 +270,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "How often should we conduct security audits?",
     user: "Bob Williams",
     stage: "Operations",
-    resolvedDate: "2023-06-25",
+    resolvedDate: "2024-01-13",
+    triage: "low",
     response: "We conduct comprehensive security audits on a quarterly basis, with continuous monitoring and smaller checks performed weekly. This schedule balances thorough review with operational efficiency.",
     decision: "Added to Security Operations Calendar",
     documentationLink: "/security/operations/audit-schedule",
@@ -277,7 +289,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "Can I use my personal iPhone to access work email while on vacation?",
     user: "Maria Garcia",
     stage: "Access Management",
-    resolvedDate: "2023-07-01",
+    resolvedDate: "2024-01-14",
+    triage: "medium",
     response: "Yes, you can access work email on personal iOS devices if they meet our BYOD requirements: 1) Latest iOS version, 2) Device passcode enabled, 3) Installation of our MDM profile, 4) Acceptance of remote wipe capability. Install our Mobile Access Portal app to get started.",
     decision: "Approved with standard BYOD controls",
     documentationLink: "/security/byod/mobile-access",
@@ -295,7 +308,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "Lost my laptop in a taxi - what do I need to do immediately?",
     user: "David Chen",
     stage: "Incident Response",
-    resolvedDate: "2023-07-05",
+    resolvedDate: "2024-01-14",
+    triage: "urgent",
     response: "Remote wipe initiated within 15 minutes of report. Device tracking enabled. User credentials reset. New laptop issued with restored backup from previous day. Incident report filed and no sensitive data was compromised due to disk encryption.",
     decision: "Incident closed - no data breach",
     documentationLink: "/security/incidents/LOST-2023-45",
@@ -313,7 +327,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "Need approval for using Zoom with external clients - is this allowed?",
     user: "Rachel Thompson",
     stage: "Software Approval",
-    resolvedDate: "2023-07-02",
+    resolvedDate: "2024-01-13",
+    triage: "medium",
     response: "Zoom is approved for external client meetings with required settings: SSO authentication, waiting rooms enabled, meeting passwords required, cloud recording disabled. Use company Zoom account only, not personal.",
     decision: "Approved with security controls",
     documentationLink: "/security/approved-software/video-conferencing",
@@ -331,7 +346,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "Received suspicious email claiming to be from CEO - what should I do?",
     user: "James Wilson",
     stage: "Phishing Report",
-    resolvedDate: "2023-07-08",
+    resolvedDate: "2024-01-14",
+    triage: "high",
     response: "Confirmed phishing attempt. Email reported to security team, blocked sender domain, updated email filters. All employees notified of phishing campaign. Reminder sent about CEO impersonation red flags.",
     decision: "Phishing attempt blocked and documented",
     documentationLink: "/security/incidents/PHISH-2023-12",
@@ -349,7 +365,8 @@ const resolvedQuestions: ResolvedQuestion[] = [
     question: "Do we need to encrypt USB drives used in the office?",
     user: "Emma Davis",
     stage: "Policy Clarification",
-    resolvedDate: "2023-07-03",
+    resolvedDate: "2024-01-13",
+    triage: "medium",
     response: "Yes, all removable storage devices must use hardware encryption. Only company-issued encrypted USB drives are permitted. Available from IT with department manager approval. Personal USB devices are not allowed.",
     decision: "Policy reinforced - no exceptions",
     documentationLink: "/security/policies/removable-media",
@@ -370,11 +387,18 @@ interface ConfirmedAssociations {
   };
 }
 
+type SortConfig = {
+  key: string;
+  direction: 'asc' | 'desc';
+} | null;
+
 export function QuestionsTable() {
   const [showResolved, setShowResolved] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<OutstandingQuestion | ResolvedQuestion | null>(null)
   const [response, setResponse] = useState('')
   const [confirmedAssociations, setConfirmedAssociations] = useState<ConfirmedAssociations>({})
+  const [selectedTriage, setSelectedTriage] = useState<string>('')
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null)
 
   const questions = showResolved ? resolvedQuestions : outstandingQuestions
 
@@ -421,6 +445,65 @@ export function QuestionsTable() {
     }
   }
 
+  const getSLAStatus = (question: OutstandingQuestion) => {
+    const due = new Date(question.dueDate)
+    const now = new Date()
+    const diffHours = (due.getTime() - now.getTime()) / (1000 * 60 * 60)
+    
+    const slaHours = {
+      urgent: 72,
+      high: 150,
+      medium: 300,
+      low: 720
+    }
+    
+    const triage = question.triage || 'medium'
+    const targetHours = slaHours[triage as keyof typeof slaHours]
+    
+    return {
+      hours: targetHours,
+      onTrack: diffHours > 0,
+      remaining: Math.abs(Math.round(diffHours))
+    }
+  }
+
+  const sortQuestions = (questions: (OutstandingQuestion | ResolvedQuestion)[]) => {
+    if (!sortConfig) return questions
+
+    return [...questions].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a]
+      const bValue = b[sortConfig.key as keyof typeof b]
+
+      if (aValue === bValue) return 0
+      
+      if (sortConfig.direction === 'asc') {
+        return (aValue ?? '') < (bValue ?? '') ? -1 : 1
+      } else {
+        return (aValue ?? '') > (bValue ?? '') ? -1 : 1
+      }
+    })
+  }
+
+  const handleSort = (key: string) => {
+    setSortConfig(current => {
+      if (!current || current.key !== key) {
+        return { key, direction: 'asc' }
+      }
+      if (current.direction === 'asc') {
+        return { key, direction: 'desc' }
+      }
+      return null
+    })
+  }
+
+  const filterQuestions = (questions: (OutstandingQuestion | ResolvedQuestion)[]) => {
+    if (!selectedTriage) return questions
+    return questions.filter(q => q.triage === selectedTriage)
+  }
+
+  const filteredQuestions = filterQuestions(questions)
+  const sortedQuestions = sortQuestions(filteredQuestions)
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -445,19 +528,105 @@ export function QuestionsTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Question</TableHead>
-            <TableHead>User</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>{showResolved ? 'Resolved Date' : 'Due Date'}</TableHead>
-            <TableHead>Source</TableHead>
+            <TableHead onClick={() => handleSort('question')} className="cursor-pointer hover:bg-muted">
+              <div className="flex items-center space-x-1">
+                <span>Question</span>
+                {sortConfig?.key === 'question' && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead onClick={() => handleSort('user')} className="cursor-pointer hover:bg-muted">
+              <div className="flex items-center space-x-1">
+                <span>User</span>
+                {sortConfig?.key === 'user' && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead onClick={() => handleSort('stage')} className="cursor-pointer hover:bg-muted">
+              <div className="flex items-center space-x-1">
+                <span>Type</span>
+                {sortConfig?.key === 'stage' && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead onClick={() => handleSort('triage')} className="cursor-pointer hover:bg-muted">
+              <div className="flex items-center space-x-1">
+                <span>Triage</span>
+                {sortConfig?.key === 'triage' && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
+            {!showResolved && (
+              <TableHead onClick={() => handleSort('dueDate')} className="cursor-pointer hover:bg-muted">
+                <div className="flex items-center space-x-1">
+                  <span>SLA Status</span>
+                  {sortConfig?.key === 'dueDate' && (
+                    <ArrowUpDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
+            )}
+            <TableHead 
+              onClick={() => handleSort(showResolved ? 'resolvedDate' : 'dueDate')} 
+              className="cursor-pointer hover:bg-muted"
+            >
+              <div className="flex items-center space-x-1">
+                <span>{showResolved ? 'Resolved Date' : 'Due By'}</span>
+                {sortConfig?.key === (showResolved ? 'resolvedDate' : 'dueDate') && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead onClick={() => handleSort('source')} className="cursor-pointer hover:bg-muted">
+              <div className="flex items-center space-x-1">
+                <span>Source</span>
+                {sortConfig?.key === 'source' && (
+                  <ArrowUpDown className="h-4 w-4" />
+                )}
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {questions.map((question) => (
+          {sortedQuestions.map((question) => (
             <TableRow key={question.id} className="cursor-pointer hover:bg-muted" onClick={() => setSelectedQuestion(question)}>
               <TableCell>{question.question}</TableCell>
               <TableCell>{question.user}</TableCell>
               <TableCell>{question.stage}</TableCell>
+              <TableCell>
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                  question.triage === 'urgent' ? 'bg-red-100 text-red-800' :
+                  question.triage === 'high' ? 'bg-orange-100 text-orange-800' :
+                  question.triage === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {question.triage || 'medium'}
+                </span>
+              </TableCell>
+              {!showResolved && 'dueDate' in question && (
+                <TableCell>
+                  {(() => {
+                    const status = getSLAStatus(question)
+                    return (
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-sm font-medium ${status.onTrack ? 'text-green-600' : 'text-red-600'}`}>
+                          {status.onTrack ? '✓' : '⚠'}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          {status.onTrack ? 
+                            `${status.remaining}hrs left` : 
+                            `${status.remaining}hrs over`
+                          }
+                        </span>
+                      </div>
+                    )
+                  })()}
+                </TableCell>
+              )}
               <TableCell>
                 {'resolvedDate' in question ? question.resolvedDate : question.dueDate}
               </TableCell>
@@ -505,6 +674,45 @@ export function QuestionsTable() {
               </div>
               {!showResolved && (
                 <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Triage Level:</Label>
+                    <div className="col-span-3">
+                      <Select 
+                        value={selectedTriage || (selectedQuestion?.triage || 'medium')} 
+                        onValueChange={setSelectedTriage}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select triage level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {!showResolved && 'dueDate' in selectedQuestion && (
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">SLA Status:</Label>
+                      <div className="col-span-3">
+                        {(() => {
+                          const status = getSLAStatus(selectedQuestion)
+                          return (
+                            <div className="flex items-center space-x-2">
+                              <span className={`font-medium ${status.onTrack ? 'text-green-600' : 'text-red-600'}`}>
+                                {status.onTrack ? '✓ On Track' : '⚠ SLA Missed'}
+                              </span>
+                              <span className="text-gray-600">
+                                ({status.hours}hr SLA, {status.onTrack ? `${status.remaining}hrs remaining` : `${status.remaining}hrs overdue`})
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    </div>
+                  )}
                   <div className="border-t pt-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label className="text-right font-semibold self-start pt-1">Policy Owner:</Label>
